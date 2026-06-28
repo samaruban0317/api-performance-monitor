@@ -1,0 +1,40 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy with: Render Dashboard -> New + -> Blueprint -> connect this repo.
+#
+# Note: the free plan has an ephemeral filesystem (no persistent disk), so the
+# SQLite history resets on each deploy/restart. That's fine here — the probe
+# scheduler immediately starts re-collecting metrics from the targets in
+# config.yaml. For durable history, upgrade the plan and attach a disk (see the
+# commented `disk:` block below).
+
+services:
+  - type: web
+    name: api-performance-monitor
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 60 run:app
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: ENABLE_SCHEDULER
+        value: "true"
+      - key: CONFIG_PATH
+        value: config.yaml
+      - key: DATABASE_PATH
+        value: data/monitor.db
+      - key: RETENTION_DAYS
+        value: "30"
+      - key: SECRET_KEY
+        generateValue: true
+
+    # --- Persistent history (paid plans only) -----------------------------
+    # disk:
+    #   name: monitor-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
+    # Then set DATABASE_PATH to /var/data/monitor.db
