@@ -198,3 +198,9 @@ metrics(id, target_id → targets.id, ts, response_time_ms,
 
 Indexes on `metrics(target_id, ts)` and `metrics(ts)` keep windowed aggregation fast.
 Samples older than `RETENTION_DAYS` are pruned hourly.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
