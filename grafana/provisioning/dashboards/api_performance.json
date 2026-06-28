@@ -1,0 +1,96 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "schemaVersion": 39,
+  "title": "API Performance Monitor",
+  "uid": "api-performance-monitor",
+  "tags": ["api", "performance", "monitoring"],
+  "time": { "from": "now-24h", "to": "now" },
+  "refresh": "30s",
+  "templating": {
+    "list": [
+      {
+        "name": "target",
+        "type": "query",
+        "datasource": { "type": "frser-sqlite-datasource", "uid": "api_monitor_sqlite" },
+        "rawQuery": "SELECT name FROM targets ORDER BY name",
+        "includeAll": true,
+        "multi": true,
+        "refresh": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Response time (avg per minute)",
+      "type": "timeseries",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "api_monitor_sqlite" },
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "drawStyle": "line", "lineWidth": 2 } } },
+      "targets": [
+        {
+          "queryType": "time series",
+          "rawQueryText": "SELECT (strftime('%s', ts) / 60) * 60 * 1000 AS time, t.name AS metric, AVG(m.response_time_ms) AS value FROM metrics m JOIN targets t ON t.id = m.target_id WHERE $__unixEpochFilter(strftime('%s', m.ts)) AND t.name IN ($target) AND m.response_time_ms IS NOT NULL GROUP BY time, t.name ORDER BY time",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Overall uptime",
+      "type": "stat",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "api_monitor_sqlite" },
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "yellow", "value": 95 }, { "color": "green", "value": 99 } ] }
+        }
+      },
+      "targets": [
+        {
+          "queryType": "table",
+          "rawQueryText": "SELECT 100.0 * SUM(success) / COUNT(*) AS uptime FROM metrics m JOIN targets t ON t.id = m.target_id WHERE $__unixEpochFilter(strftime('%s', m.ts)) AND t.name IN ($target)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Errors over time",
+      "type": "timeseries",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "api_monitor_sqlite" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "bars", "fillOpacity": 60 }, "color": { "mode": "fixed", "fixedColor": "red" } } },
+      "targets": [
+        {
+          "queryType": "time series",
+          "rawQueryText": "SELECT (strftime('%s', ts) / 300) * 300 * 1000 AS time, t.name AS metric, SUM(CASE WHEN m.success = 0 THEN 1 ELSE 0 END) AS value FROM metrics m JOIN targets t ON t.id = m.target_id WHERE $__unixEpochFilter(strftime('%s', m.ts)) AND t.name IN ($target) GROUP BY time, t.name ORDER BY time",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Endpoint summary",
+      "type": "table",
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "api_monitor_sqlite" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "avg_ms" }, "properties": [ { "id": "unit", "value": "ms" } ] },
+          { "matcher": { "id": "byName", "options": "max_ms" }, "properties": [ { "id": "unit", "value": "ms" } ] },
+          { "matcher": { "id": "byName", "options": "uptime_pct" }, "properties": [ { "id": "unit", "value": "percent" } ] }
+        ]
+      },
+      "targets": [
+        {
+          "queryType": "table",
+          "rawQueryText": "SELECT t.name AS endpoint, COUNT(*) AS samples, ROUND(AVG(m.response_time_ms), 1) AS avg_ms, ROUND(MAX(m.response_time_ms), 1) AS max_ms, ROUND(100.0 * SUM(m.success) / COUNT(*), 2) AS uptime_pct, SUM(CASE WHEN m.success = 0 THEN 1 ELSE 0 END) AS errors FROM metrics m JOIN targets t ON t.id = m.target_id WHERE $__unixEpochFilter(strftime('%s', m.ts)) AND t.name IN ($target) GROUP BY t.name ORDER BY avg_ms DESC"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+apiVersion: 1
+
+# Two ways to feed Grafana, both provisioned automatically:
+#
+#  1. sqlite     -> reads the monitor's SQLite file directly (frser-sqlite-datasource)
+#  2. prometheus -> scrapes the /metrics endpoint via a Prometheus server
+#
+# The SQLite datasource is the primary one used by the bundled dashboard.
+
+datasources:
+  - name: API Monitor (SQLite)
+    type: frser-sqlite-datasource
+    uid: api_monitor_sqlite
+    access: proxy
+    isDefault: true
+    jsonData:
+      path: /var/lib/monitor/monitor.db
+    editable: true

@@ -1,0 +1,40 @@
+services:
+  monitor:
+    build: .
+    container_name: api-monitor
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_PATH: /app/data/monitor.db
+      CONFIG_PATH: /app/config.yaml
+      ENABLE_SCHEDULER: "true"
+      RETENTION_DAYS: "30"
+    volumes:
+      - monitor-data:/app/data
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: api-monitor-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      # Install the SQLite datasource plugin on startup.
+      GF_INSTALL_PLUGINS: frser-sqlite-datasource
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: frser-sqlite-datasource
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      # Grafana reads the same SQLite file the monitor writes to.
+      # Mounted read-write so the SQLite (WAL mode) reader can open it.
+      - monitor-data:/var/lib/monitor
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - monitor
+    restart: unless-stopped
+
+volumes:
+  monitor-data:
+  grafana-data:

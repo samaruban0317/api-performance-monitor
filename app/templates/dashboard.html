@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Performance Monitor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◉</span>
+      <div>
+        <h1>API Performance Monitor</h1>
+        <p class="subtitle">Response times · error rates · performance insights</p>
+      </div>
+    </div>
+    <div class="controls">
+      <label for="window">Window</label>
+      <select id="window">
+        <option value="1h">Last 1 hour</option>
+        <option value="24h" selected>Last 24 hours</option>
+        <option value="7d">Last 7 days</option>
+      </select>
+      <button id="refresh" class="btn">Refresh</button>
+      <span id="updated" class="updated"></span>
+    </div>
+  </header>
+
+  <main>
+    <section class="cards" id="summary-cards"></section>
+
+    <section class="panel">
+      <h2>Insights</h2>
+      <ul id="insights" class="insights"></ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Monitored Endpoints</h2>
+        <span class="hint">Click a row to view recent latency</span>
+      </div>
+      <div class="table-wrap">
+        <table id="targets-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Endpoint</th>
+              <th class="num">Avg</th>
+              <th class="num">p95</th>
+              <th class="num">p99</th>
+              <th class="num">Uptime</th>
+              <th class="num">Errors</th>
+              <th class="num">Samples</th>
+            </tr>
+          </thead>
+          <tbody id="targets-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="detail-panel">
+      <div class="panel-head">
+        <h2 id="detail-title">Recent latency</h2>
+        <button id="close-detail" class="btn ghost">Close</button>
+      </div>
+      <canvas id="latency-chart" height="120"></canvas>
+    </section>
+  </main>
+
+  <footer>
+    <span>Grafana-ready · <a href="/metrics">/metrics</a> · <a href="/api/overview">/api/overview</a></span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>

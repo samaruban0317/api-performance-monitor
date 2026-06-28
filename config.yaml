@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Monitored endpoints
+# ---------------------------------------------------------------------------
+# Each target is probed on its own interval. On startup these definitions are
+# synced into the database (matched by `name`); you can also manage targets at
+# runtime through the REST API (POST/PUT/DELETE /api/targets).
+#
+# Fields:
+#   name             unique human-readable identifier (required)
+#   url              endpoint to probe (required)
+#   method           HTTP method (default: GET)
+#   headers          optional map of request headers
+#   body             optional request body (string or JSON)
+#   expected_status  status code considered "healthy" (default: 200)
+#   timeout          per-request timeout in seconds (default: 10)
+#   interval         seconds between probes (default: 60)
+#   enabled          whether to probe this target (default: true)
+# ---------------------------------------------------------------------------
+
+defaults:
+  method: GET
+  expected_status: 200
+  timeout: 10
+  interval: 60
+  enabled: true
+
+targets:
+  - name: github-status
+    url: https://www.githubstatus.com/api/v2/status.json
+    interval: 60
+
+  - name: httpbin-get
+    url: https://httpbin.org/get
+    interval: 45
+
+  - name: httpbin-delay-2s
+    url: https://httpbin.org/delay/2
+    timeout: 5
+    interval: 90
+
+  - name: jsonplaceholder-posts
+    url: https://jsonplaceholder.typicode.com/posts/1
+    interval: 60
