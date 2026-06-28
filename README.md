@@ -1,5 +1,7 @@
 # API Performance Monitor
 
+[![CI](https://github.com/samaruban0317/api-performance-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/samaruban0317/api-performance-monitor/actions/workflows/ci.yml)
+
 A system to **track and analyse API performance metrics** — response times, error
 rates, and uptime — and turn them into actionable performance insights.
 
