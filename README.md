@@ -111,22 +111,6 @@ python run.py
 
 ---
 
-## Deploy to Render
-
-This repo ships a [`render.yaml`](render.yaml) Blueprint, so deployment is one click:
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/samaruban0317/api-performance-monitor)
-
-Or manually: **Render Dashboard → New + → Blueprint → connect this repo**. Render
-provisions a free web service running `gunicorn`, binds it to `$PORT`, and starts the
-probe scheduler automatically. The live dashboard is then served at the service URL.
-
-> On Render's free plan the filesystem is ephemeral, so SQLite history resets on
-> redeploy — the scheduler immediately repopulates it. For durable history, attach a
-> persistent disk (see the commented block in `render.yaml`).
-
----
-
 ## Run with Grafana (Docker)
 
 ```bash
