@@ -18,10 +18,13 @@ from app.database import Database
 
 DEMO_TARGETS = [
     # name, url, base latency (ms), jitter, error probability
-    ("payments-api", "https://api.example.com/payments", 80, 40, 0.01),
-    ("search-api", "https://api.example.com/search", 220, 120, 0.03),
-    ("auth-api", "https://api.example.com/auth", 60, 20, 0.005),
-    ("recommendations-api", "https://api.example.com/recommend", 450, 300, 0.08),
+    ("auth-api", "https://api.example.com/auth", 60, 20, 0.004),
+    ("payments-api", "https://api.example.com/payments", 90, 45, 0.01),
+    ("search-api", "https://api.example.com/search", 240, 130, 0.03),
+    # Intentionally slow -> triggers a p95 latency warning in the insights panel.
+    ("recommendations-api", "https://api.example.com/recommend", 700, 450, 0.05),
+    # Intentionally flaky -> triggers a critical error-rate insight.
+    ("inventory-api", "https://api.example.com/inventory", 130, 60, 0.14),
 ]
 
 
